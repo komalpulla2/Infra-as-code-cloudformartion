@@ -1,0 +1,30 @@
+# This template helps to understand the implicit dependecy. Since we are using the Security group created,
+# Security group is created before the instance is created.
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: Demo template to understand the implicit dependecy
+Resources:
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-008fe2fc65df48dac
+      InstanceType: t2.micro
+      SubnetId: subnet-06896bc0849ecea5d
+      SecurityGroupIds:
+        - !Ref WebServerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: web-server
+        - Key: Project
+          Value: AWS CloudFormation Step by Step
+  
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for web servers
+      VpcId: vpc-09610f5a9438fd239
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: '0.0.0.0/0'

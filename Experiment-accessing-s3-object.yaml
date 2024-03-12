@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+
+  Vpc:
+    Type: AWS::EC2::VPC
+    Description: My  VPC 
+    Properties:
+      CidrBlock: 10.0.0.0/16  
+      Tags:
+        -
+          Key: Name
+          Value: VPC for my infrastructure
+ 
+  Instance:
+    Type: AWS::EC2::Instance 
+    DependsOn:
+      - InternetRoute
+      - SubnetRouteTableAssoc
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-008fe2fc65df48dac
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+ 
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup 
+    Properties:
+      GroupDescription:  security group 
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        -
+          CidrIp: 0.0.0.0/0 
+          IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: s3accessfromec2-test
+
+  # SecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupDescription: Enable SSH and access to S3 bucket
+  #     SecurityGroupIngress:
+  #       - IpProtocol: tcp
+  #         FromPort: 22
+  #         ToPort: 22
+  #         CidrIp: 0.0.0.0/0
+  #       - IpProtocol: tcp
+  #         FromPort: 80
+  #         ToPort: 80
+  #         CidrIp: 0.0.0.0/0
+  #     # SecurityGroupEgress:
+  #     #   - IpProtocol: tcp
+  #     #     FromPort: 0
+  #     #     ToPort: 65535
+  #     #     CidrIp: 0.0.0.0/0
+  #     #   - IpProtocol: udp
+  #     #     FromPort: 0
+  #     #     ToPort: 65535
+  #     #     CidrIp: 0.0.0.0/0
+  #     Tags:
+  #       - Key: Name
+  #         Value: SecurityGroup
+
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Statement:
+          - Sid: AllowEC2Access
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: s3:*
+            Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"

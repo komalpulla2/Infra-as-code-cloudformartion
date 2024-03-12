@@ -1,0 +1,11 @@
+# Stack protection in AWS CloudFormation is a feature that prevents a stack from being accidentally deleted. When you enable termination protection for a stack, 
+# CloudFormation prevents the stack from being accidentally deleted. Anyone who attempts to delete a stack with termination protection enabled will encounter an error.
+
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyProtectedStack:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-templates-us-east-1/WordPress_Single_Instance.template
+      TimeoutInMinutes: '60'
+      EnableTerminationProtection: true  # Enable ternination protection

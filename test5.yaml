@@ -1,0 +1,9 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: " sample Template"
+Resources:
+  MyServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId:
+      InstanceType:
+      SubnetId:

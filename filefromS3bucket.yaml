@@ -1,0 +1,15 @@
+
+# You can include files from an Amazon S3 bucket in a CloudFormation template using the AWS::Include transform. 
+# This allows you to reference other files such as scripts, configuration files, or even other CloudFormation snippets in your template.
+# Here’s an example of how to use AWS::Include to insert a file from S3 into your CloudFormation template:
+
+Resources:
+  MyInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      UserData:
+        'Fn::Base64': 
+          'Fn::Transform':
+            Name: 'AWS::Include'
+            Parameters:
+              Location: s3://my-bucket/my-script.sh

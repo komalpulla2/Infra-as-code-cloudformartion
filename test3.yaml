@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create IAM policy, IAM role, and assign to EC2 instance for S3 full access
+
+Parameters:
+  EC2InstanceType:
+    Type: String
+    Default: t2.micro
+    Description: EC2 instance type for the instance
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: ID of the VPC where the EC2 instance will be launched
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: ID of the Subnet where the EC2 instance will be launched
+
+Resources:
+  S3FullAccessPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 
+              - "s3:*"
+            Resource: "*"
+
+  S3AccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: S3AccessRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Ref S3FullAccessPolicy
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref EC2InstanceType
+      KeyName: !Ref KeyPairName
+      ImageId: ami-008fe2fc65df48dac  # Replace with your AMI ID
+      SubnetId: !Ref SubnetId
+      # IamInstanceProfile: 
+      #   Arn: !Sub "arn:aws:iam::${AWS::AccountId}:role/S3AccessRole"
+      IamInstanceProfile: !GetAtt S3AccessRole.Arn

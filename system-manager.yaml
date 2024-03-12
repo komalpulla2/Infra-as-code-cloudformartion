@@ -1,0 +1,16 @@
+# Handling sensitive information securely is a critical aspect of managing infrastructure, In AWS CloudFormation,
+# you should never hard-code sensitive information in your templates
+# Instead, use AWS Systems Manager Parameter Store or AWS Secrets Manager to store sensitive 
+# data and reference them in your templates.
+
+# For example, consider a template that creates a RDS database. You can retrieve the master password from the Secrets Manager:
+
+
+
+Resources:
+  MyDB:
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      MasterUsername: admin
+      MasterUserPassword: 
+        Fn::Sub: '{{resolve:secretsmanager:mySecret:SecretString:password}}'

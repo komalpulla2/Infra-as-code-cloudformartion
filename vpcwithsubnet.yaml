@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Template to create VPC, Subnet, IGW, and its assignment
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Description: My  VPC 
+    Properties:
+      CidrBlock: 10.0.0.0/16  
+      Tags:
+        -
+          Key: Name
+          Value: VPC for my infrastructure
+  Subnet:
+    Type: AWS::EC2::Subnet 
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref Vpc
+  RouteTable:
+    Type: AWS::EC2::RouteTable 
+    Properties:
+      VpcId: !Ref Vpc
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref Vpc
+      InternetGatewayId: !Ref InternetGateway
+  InternetRoute:
+    Type: AWS::EC2::Route 
+    DependsOn:
+      - GatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTable
+      GatewayId: !Ref InternetGateway
+      DestinationCidrBlock: 0.0.0.0/0
+  SubnetRouteTableAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref Subnet
+  Instance:
+    Type: AWS::EC2::Instance 
+    DependsOn:
+      - InternetRoute
+      - SubnetRouteTableAssoc
+    Properties:
+      InstanceType: t2.micro
+      SubnetId: !Ref Subnet 
+      ImageId: ami-008fe2fc65df48dac
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup 
+    Properties:
+      GroupDescription:  security group 
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        -
+          CidrIp: 0.0.0.0/0 
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+

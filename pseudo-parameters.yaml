@@ -1,0 +1,31 @@
+# This template using Psuedo Parameters
+
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: My first step to learning CloudFormation
+Resources:
+  MyWebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-008fe2fc65df48dac   # To be replaced with the supported AMI  id for the region, this is for us-west-2
+      InstanceType: t2.micro
+      SubnetId: subnet-06896bc0849ecea5d  # To be replaced with the subnet id from your environment
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::AccountId}-${AWS::StackName}-LogMonitor"   # Using Psuedo parameters
+        - Key: Project
+          Value: My First EC2 Creation Through CloudFormation
+
+
+# AWS:: AccountId
+# AWS:: Region
+# AWS:: StackID
+# AWS:: AWS::StackName
+
+
+
+
+
+
+
+

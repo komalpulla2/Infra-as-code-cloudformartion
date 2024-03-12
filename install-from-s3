@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  MyIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3AccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: "arn:aws:s3:::mycftemplates/*"
+
+  MyInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - Ref: MyIAMRole
+
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-008fe2fc65df48dac
+      InstanceType: t2.micro
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Update package lists with sudo
+          sudo apt-get update -y
+
+          # Install necessary packages with sudo
+          sudo apt-get install -y awscli
+
+          # Download shell script from S3
+          aws s3 cp s3://mycftemplates/server-script.sh /tmp/
+
+          # Execute shell script with sudo
+          chmod +x /tmp/server-script.sh
+          ./tmp/server-script.sh
+
+      KeyName: webserver-key
+      IamInstanceProfile:
+        Ref: MyInstanceProfile

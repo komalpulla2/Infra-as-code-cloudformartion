@@ -1,0 +1,26 @@
+# Conditions in a CloudFormation Template are used to control the creation of resources or the setting of 
+# properties based on runtime inputs. They help in creating more flexible and configurable templates
+# Here’s an example of how conditions can be used in a CloudFormation template
+# In this template, the condition IsProduction checks if EnvironmentType is prod. 
+# If it’s prod, the BucketName will be my-prod-bucket; otherwise, it will be my-test-bucket.
+
+Parameters:
+  EnvironmentType:
+    Description: Environment type.
+    Type: String
+    Default: test
+    AllowedValues:
+      - prod
+      - test
+Conditions:
+  IsProduction: 
+    Fn::Equals: [!Ref EnvironmentType, prod]
+Resources:
+  MyBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 
+        Fn::If:
+          - IsProduction
+          - my-prod-bucket
+          - my-test-bucket
